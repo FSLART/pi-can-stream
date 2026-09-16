@@ -1,0 +1,16 @@
+[Unit]
+Description=Raspberry Pi CAN0 and CAN1 Wi-Fi stream
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/default/rpi-can-stream
+ExecStart=/bin/bash /opt/remote-can-receiver/start_service.sh
+Restart=always
+RestartSec=5
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
