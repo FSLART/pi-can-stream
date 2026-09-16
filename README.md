@@ -98,6 +98,33 @@ The Pi does not send to PCs until they connect. The Wi-Fi network must
 allow devices to communicate, and any Pi firewall must allow incoming TCP
 on the selected port.
 
+## Windows PC: connect with a batch script
+
+Keep `connect.bat` and `connect.ps1` in the same folder. No netcat or
+administrator privileges are required; the launcher uses Windows
+PowerShell 5.1 or later.
+
+From Command Prompt, use the Pi's hostname or Wi-Fi IP:
+
+```bat
+connect.bat raspberrypi.local 5000
+```
+
+If `.local` cannot be resolved, find the Pi's Wi-Fi IP with `hostname -I`
+on the Pi and pass that IP as the first argument. You can also double-click
+`connect.bat`; it prompts for the Pi address and defaults to port 5000.
+
+Both CAN buses appear in the terminal with their original bus names and
+timestamps. The viewer reconnects automatically when the connection drops.
+Press Ctrl+C to stop. This Windows viewer displays the stream; it does not
+create the Linux SocketCAN interfaces used by `connect.sh`.
+
+To run the PowerShell viewer directly:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\connect.ps1 -Server raspberrypi.local -Port 5000
+```
+
 ## Linux PC: receive through local SocketCAN interfaces
 
 Install the dependencies and start the client:
