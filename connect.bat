@@ -1,12 +1,16 @@
 @echo off
 setlocal DisableDelayedExpansion
 
+REM If hostname lookup fails, put the Pi Wi-Fi IP between the quotes below.
+set "RPI_CAN_IP="
+
 set "RPI_CAN_SERVER=%~1"
 set "RPI_CAN_PORT=%~2"
+if not defined RPI_CAN_SERVER if defined RPI_CAN_IP set "RPI_CAN_SERVER=%RPI_CAN_IP%"
 if not defined RPI_CAN_SERVER (
-    set /p "RPI_CAN_SERVER=Raspberry Pi IP or hostname [raspberrypi.local]: "
+    set /p "RPI_CAN_SERVER=Raspberry Pi IP or hostname [lart2026-desktop.local]: "
 )
-if not defined RPI_CAN_SERVER set "RPI_CAN_SERVER=raspberrypi.local"
+if not defined RPI_CAN_SERVER set "RPI_CAN_SERVER=lart2026-desktop.local"
 if not defined RPI_CAN_PORT set "RPI_CAN_PORT=5000"
 
 where powershell.exe >nul 2>&1

@@ -34,11 +34,24 @@ It checks that both buses are up and waits for PCs. It uses
 `candump -L can0 can1` to capture both buses in the can-utils log format:
 https://github.com/linux-can/can-utils/blob/master/candump.c
 
-Find the Pi's hostname with `hostname`. If it is `raspberrypi`, PCs can
-normally use `raspberrypi.local`. The `.local` hostname requires mDNS
+Find the Pi's hostname with `hostname`. If it is `lart2026-desktop`, PCs can
+normally use `lart2026-desktop.local`. The `.local` hostname requires mDNS
 support on the Pi and PC; otherwise use the Pi's IP or another resolvable
 hostname. `rpi_stream.sh` starts the server when launched. To start it at
 boot, use the installer below. Wi-Fi must already be configured on the Pi.
+
+If the hostname does not work, run `hostname -I` on the Pi and use its
+Wi-Fi IP instead. Replace `PI_WIFI_IP` below with that address:
+
+```text
+nc PI_WIFI_IP 5000
+connect.bat PI_WIFI_IP 5000
+./connect.sh PI_WIFI_IP 5000
+```
+
+To save the IP as your default, set `RPI_CAN_IP` near the top of
+`connect.bat`, or `RPI_IP` near the top of `connect.sh`. An address passed
+on the command line takes precedence over the saved IP.
 
 ## Start automatically when the Pi boots
 
@@ -84,7 +97,7 @@ sudo systemctl disable --now rpi-can-stream
 With netcat installed, connect to the **Pi**, not a PC address:
 
 ```bash
-nc raspberrypi.local 5000
+nc lart2026-desktop.local 5000
 ```
 
 This displays frames from both buses, for example:
@@ -107,7 +120,7 @@ PowerShell 5.1 or later.
 From Command Prompt, use the Pi's hostname or Wi-Fi IP:
 
 ```bat
-connect.bat raspberrypi.local 5000
+connect.bat lart2026-desktop.local 5000
 ```
 
 If `.local` cannot be resolved, find the Pi's Wi-Fi IP with `hostname -I`
@@ -122,7 +135,7 @@ create the Linux SocketCAN interfaces used by `connect.sh`.
 To run the PowerShell viewer directly:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\connect.ps1 -Server raspberrypi.local -Port 5000
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\connect.ps1 -Server lart2026-desktop.local -Port 5000
 ```
 
 ## Linux PC: receive through local SocketCAN interfaces
@@ -131,7 +144,7 @@ Install the dependencies and start the client:
 
 ```bash
 sudo apt install can-utils netcat-openbsd iproute2
-./connect.sh raspberrypi.local
+./connect.sh lart2026-desktop.local
 ```
 
 In another terminal:
@@ -160,9 +173,9 @@ PORT=5001 ./rpi_stream.sh
 On a PC:
 
 ```bash
-./connect.sh raspberrypi.local 5001
+./connect.sh lart2026-desktop.local 5001
 # Or display the raw stream:
-nc raspberrypi.local 5001
+nc lart2026-desktop.local 5001
 ```
 
 ## Verify locally

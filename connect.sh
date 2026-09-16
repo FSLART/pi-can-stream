@@ -2,7 +2,9 @@
 set -euo pipefail
 
 # Run on a Linux PC. The Pi listens; this PC initiates the connection.
-RPI_HOST="${1:-raspberrypi.local}"
+# If hostname lookup fails, put the Pi Wi-Fi IP between the quotes below.
+RPI_IP=""
+RPI_HOST="${1:-${RPI_IP:-lart2026-desktop.local}}"
 PORT="${2:-${PORT:-5000}}"
 
 for tool in nc cansend ip modprobe sudo; do

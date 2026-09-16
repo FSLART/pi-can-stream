@@ -2,7 +2,7 @@
 # Windows viewer for the Raspberry Pi's read-only CAN TCP stream.
 param(
     [ValidateNotNullOrEmpty()]
-    [string]$Server = $(if ($env:RPI_CAN_SERVER) { $env:RPI_CAN_SERVER } else { 'raspberrypi.local' }),
+    [string]$Server = $(if ($env:RPI_CAN_SERVER) { $env:RPI_CAN_SERVER } else { 'lart2026-desktop.local' }),
 
     [ValidateRange(1, 65535)]
     [int]$Port = $(if ($env:RPI_CAN_PORT) { $env:RPI_CAN_PORT } else { 5000 })
