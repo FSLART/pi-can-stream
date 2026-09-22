@@ -138,6 +138,62 @@ To run the PowerShell viewer directly:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\connect.ps1 -Server lart2026-desktop.local -Port 5000
 ```
 
+## Windows PC: view the stream in cangaroo
+
+cangaroo's `Measurement > Driver` menu offers CANblaster and TinyCAN. TinyCAN
+expects Tiny-CAN hardware and its Windows driver DLL, so CANblaster is the
+path used here: it is a plain UDP protocol, and `cangaroo.ps1` speaks it.
+
+`cangaroo.ps1` reads the Pi's TCP stream and re-emits the frames on this PC as
+CANblaster UDP datagrams. The Pi is unchanged, and the Linux instructions above
+keep working as they are. Nothing is ever sent onto the Pi's CAN buses.
+
+Keep `cangaroo.bat` and `cangaroo.ps1` in the same folder. Nothing has to be
+installed: Windows PowerShell 5.1 compiles the bridge on the fly.
+
+```bat
+cangaroo.bat lart2026-desktop.local 5000
+```
+
+Then, in cangaroo:
+
+1. `Measurement > Driver > CANblaster`
+2. `Measurement > Setup...`, press `Reload Interfaces`, and select this PC's
+   address. Discovery takes about two seconds.
+3. `OK`, then `Measurement > Start Measurement` (F5).
+
+Frames from both Pi buses appear on one cangaroo interface. That is a limit of
+cangaroo's CANblaster driver, not of the bridge: it creates one interface per
+server address, and every interface binds the same UDP port 20001
+(`src/driver/CANBlastDriver/CANBlasterInterface.cpp`). On Windows, only one
+socket bound to that port receives datagrams, so a second CANblaster interface
+stays empty even when a second server announces itself. Splitting the buses
+across two Pi ports, or running two bridges, does not change this. Two separate
+channels would need a patched cangaroo, or a second machine running its own
+cangaroo.
+
+The status line prints a per-bus frame count, so both buses can be seen
+arriving. To send only one bus to cangaroo, run the bridge directly and name it:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\cangaroo.ps1 -Server lart2026-desktop.local -Bus can1
+```
+
+Ports used on this PC: UDP 20000 for discovery, 20001 for frames (cangaroo
+listens), 20002 for cangaroo's heartbeat (the bridge listens). Allow
+`powershell.exe` through Windows Defender Firewall on private networks when
+prompted. If discovery still finds nothing because multicast is blocked,
+announce straight to the local address:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\cangaroo.ps1 -Server lart2026-desktop.local -Announce 127.0.0.1
+```
+
+To check the cangaroo side without the Pi, run the bridge with `-Simulate`; it
+generates frames itself. CAN FD frames from the Pi are skipped and counted in
+the status line, because cangaroo's CANblaster driver reads classic frames
+only. `connect.bat` is unaffected and still shows the raw text stream.
+
 ## Linux PC: receive through local SocketCAN interfaces
 
 Install the dependencies and start the client:
@@ -183,6 +239,13 @@ nc lart2026-desktop.local 5001
 ```bash
 python3 -m unittest -v test_stream.py
 python3 -m unittest -v test_autostart.py
+```
+
+On Windows, check the cangaroo bridge (needs Windows PowerShell, no CAN
+hardware):
+
+```bat
+python -m unittest -v test_cangaroo.py
 ```
 
 The tests simulate the CAN capture and CAN injection tools and use real
